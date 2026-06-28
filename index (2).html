@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>តារាងតម្លៃផលិតផល</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bayon&family=Inter:wght@400;500;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        h1 { font-family: 'Bayon', cursive; }
+        .category-item.active { background-color: #f97316; color: white; border-color: #f97316; }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white p-4 shadow-md sticky top-0 z-10 border-b border-gray-100">
+        <h1 class="text-2xl text-orange-600 mb-3 text-center">តារាងតម្លៃផលិតផល</h1>
+        <div class="relative">
+            <input type="text" id="search-box" placeholder="ស្វែងរកឈ្មោះ ឬលេខកូដ..." 
+                   class="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-200 outline-none transition-all"
+                   oninput="handleSearch()">
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
+        <aside id="category-bar" class="w-24 bg-white border-r overflow-y-auto p-2 flex flex-col gap-2">
+            <!-- ជម្រើសប្រភេទនឹងបង្ហាញទីនេះ -->
+        </aside>
+
+        <main id="app-container" class="flex-1 overflow-y-auto p-3 space-y-3">
+            <!-- ទំនិញនឹងបង្ហាញទីនេះ -->
+        </main>
+    </div>
+
+    <script>
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/1iXLoDPlNtwBr-jfIR8Nd73dxarb9kfv5o3r3MCRCqIo/gviz/tq?tqx=out:csv';
+        let allData = [];
+        let currentCategory = 'ទាំងអស់';
+
+        async function fetchSheetData() {
+            try {
+                const response = await fetch(CSV_URL);
+                const data = await response.text();
+                const lines = data.split('\n');
+                allData = lines.slice(1).filter(line => line.trim() !== "").map(line => {
+                    const row = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+                    return { 
+                        name: row[0] || '', code: row[1] || '', variant: row[2] || '',
+                        salePrice: row[3] || '0', category: row[5] || 'ផ្សេងៗ',
+                        inStock: row[6] !== '0', updateStatus: row[7] ? row[7].trim() : '' 
+                    };
+                });
+                renderCategories();
+                renderProductList(allData);
+            } catch (e) { console.error("Error fetching data:", e); }
+        }
+
+        function renderCategories() {
+            const categories = ['ទាំងអស់', ...new Set(allData.map(i => i.category))];
+            document.getElementById('category-bar').innerHTML = categories.map(cat => `
+                <button onclick="filter('${cat}', this)" class="category-item w-full p-2 text-[10px] rounded-lg font-bold text-gray-600 border ${cat === 'ទាំងអស់' ? 'active' : 'bg-gray-50'}">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function filter(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active', 'bg-gray-50'));
+            btn.classList.add('active');
+            handleSearch();
+        }
+
+        function handleSearch() {
+            const searchTerm = document.getElementById('search-box').value.toLowerCase();
+            const filtered = allData.filter(item => {
+                const matchCat = (currentCategory === 'ទាំងអស់' || item.category === currentCategory);
+                const matchSearch = (item.name.toLowerCase().includes(searchTerm) || item.code.toLowerCase().includes(searchTerm));
+                return matchCat && matchSearch;
+            });
+            renderProductList(filtered);
+        }
+
+        function renderProductList(items) {
+            const container = document.getElementById('app-container');
+            container.innerHTML = items.map(item => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 ${!item.inStock ? 'opacity-50' : ''}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg">${item.name}</h3>
+                            <p class="text-xs text-gray-500">${item.variant}</p>
+                        </div>
+                        <span class="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded-md font-bold">${item.code}</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-50 flex justify-between items-center">
+                        <span class="text-sm font-bold text-gray-600">តម្លៃ:</span>
+                        <span class="text-xl font-black text-orange-600">${item.salePrice} $</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.onload = fetchSheetData;
+    </script>
+</body>
+</html>
