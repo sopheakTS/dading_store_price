@@ -99,6 +99,16 @@
                         <span class="text-sm font-bold text-gray-600">តម្លៃ:</span>
                         <span class="text-xl font-black text-orange-600">${item.salePrice} $</span>
                     </div>
+                    
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="text-[12px] text-black font-medium">
+                            ${item.variant}
+                        </div>
+                        <div class="flex gap-1">
+                            ${!item.inStock ? '<span class="text-[9px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-full">អស់ស្តុក</span>' : ''}
+                        </div>
+                    </div>
+
                 </div>
             `).join('');
         }
