@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>តារាងតម្លៃផលិតផល</title>
+    <title>Menu App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -14,7 +14,10 @@
 <body class="flex flex-col h-screen overflow-hidden bg-gray-50">
 
     <header class="bg-white shadow-sm p-3 border-b flex flex-col gap-2">
-        <h1 class="text-lg font-bold text-orange-600">តារាងតម្លៃលក់រាយ</h1>
+        <div class="flex justify-between items-center">
+            <h1 class="text-lg font-bold text-orange-600">តារាងតម្លៃបោះដុំ និងលក់រាយ</h1>
+            <span id="last-update" class="text-[10px] text-gray-400 italic"></span>
+        </div>
         <input type="text" id="search-box" placeholder="ស្វែងរកឈ្មោះ ឬលេខកូដ..." 
                class="w-full p-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-orange-400 bg-gray-50"
                oninput="handleSearch()">
@@ -37,6 +40,14 @@
         async function fetchSheetData() {
             try {
                 const response = await fetch(CSV_URL);
+                
+                // បង្ហាញពេលវេលាកែប្រែចុងក្រោយប្រសិនបើមានពី server
+                const lastModified = response.headers.get('last-modified') || response.headers.get('date');
+                if (lastModified) {
+                    const date = new Date(lastModified);
+                    document.getElementById('last-update').innerText = `Last Update: ${date.toLocaleString('km-KH')}`;
+                }
+
                 const data = await response.text();
                 const lines = data.split('\n');
                 
@@ -95,7 +106,6 @@
             const container = document.getElementById('app-container');
             container.innerHTML = items.map(item => {
                 const isNew = item.updateStatus === '1';
-                
                 return `
                 <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 ${!item.inStock ? 'opacity-60 grayscale' : 'hover:border-orange-200'} transition-colors">
                     <div class="flex justify-between items-start mb-1">
@@ -105,16 +115,10 @@
                         </div>
                         <span class="text-[10px] text-gray-400 font-bold bg-gray-100 px-1.5 py-0.5 rounded ml-2 whitespace-nowrap">${item.code}</span>
                     </div>
-                    
                     <div class="flex justify-between items-center mb-2">
-                        <div class="text-[12px] text-black font-medium">
-                            ${item.variant}
-                        </div>
-                        <div class="flex gap-1">
-                            ${!item.inStock ? '<span class="text-[14px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-full">អស់ស្តុក</span>' : ''}
-                        </div>
+                        <div class="text-[12px] text-black font-medium">${item.variant}</div>
+                        <div class="flex gap-1">${!item.inStock ? '<span class="text-[9px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-full">អស់ស្តុក</span>' : ''}</div>
                     </div>
-
                     <div class="flex justify-between items-center border-t border-gray-100 pt-2">
                         <div class="flex items-center gap-1">
                             <span class="text-gray-500 text-[11px] font-semibold">លក់រាយ:</span>
@@ -122,7 +126,7 @@
                         </div>
                     </div>
                 </div>
-            `;
+                `;
             }).join('');
         }
 
