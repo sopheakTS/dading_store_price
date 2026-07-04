@@ -17,10 +17,10 @@
 
     <header class="bg-white shadow-md p-4 border-b border-orange-100 flex flex-col gap-3">
         <div class="flex justify-between items-center">
-            <h1 class="text-lg font-bold text-orange-600 tracking-tight">តារាងតម្លៃបោះដុំ និងលក់រាយ</h1>
+            <h1 class="text-lg font-bold text-orange-600 tracking-tight">តារាងតម្លៃបោះដុំនិងលក់រាយ 零售批发价</h1>
             <span id="last-update" class="text-[10px] text-gray-400 italic"></span>
         </div>
-        <input type="text" id="search-box" placeholder="ស្វែងរកឈ្មោះ ឬលេខកូដ..." 
+        <input type="text" id="search-box" placeholder="ស្វែងរកឈ្មោះ ឬលេខកូដ...​ 搜索名称或代码……" 
                class="w-full p-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white shadow-sm"
                oninput="handleSearch()">
     </header>
@@ -71,7 +71,7 @@
 
         function renderCategories() {
             const uniqueCats = [...new Set(allData.map(i => i.category))];
-            const categories = ['ទាំងអស់', 'ទំនិញថ្មី', ...uniqueCats];
+            const categories = ['ទាំងអស់ 全部', 'ទំនិញថ្មី 新货', ...uniqueCats];
             document.getElementById('category-list').innerHTML = categories.map(cat => `
                 <button onclick="filter('${cat}', this)" class="category-item w-full text-left px-4 py-2.5 text-sm rounded-xl font-medium text-gray-700 mb-2 transition-all ${cat === 'ទាំងអស់' ? 'active' : ''}">
                     ${cat}
@@ -89,8 +89,8 @@
         function handleSearch() {
             const searchTerm = document.getElementById('search-box').value.toLowerCase();
             const filtered = allData.filter(item => {
-                let matchesCategory = (currentCategory === 'ទាំងអស់') ? true : 
-                                     (currentCategory === 'ទំនិញថ្មី') ? (item.newStock === '1') : 
+                let matchesCategory = (currentCategory === 'ទាំងអស់ 全部') ? true : 
+                                     (currentCategory === 'ទំនិញថ្មី 新货') ? (item.newStock === '1') : 
                                      (item.category === currentCategory);
                 const matchesSearch = (item.name.toLowerCase().includes(searchTerm) || item.code.toLowerCase().includes(searchTerm));
                 return matchesCategory && matchesSearch;
@@ -110,9 +110,9 @@
                         <div class="flex flex-col gap-1">
                             <span class="font-bold text-gray-800 text-[16px]">${item.name}</span>
                             <div class="flex gap-1 flex-wrap">
-                                ${isNew ? '<span class="text-[12px] font-bold text-white bg-red-500 px-2 py-0.5 rounded-md shadow-sm">ទំនិញថ្មី</span>' : ''}
-                                ${hasPriceUpdate ? '<span class="text-[12px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-md shadow-sm">កែតម្លៃ</span>' : ''}
-                                ${!item.inStock ? '<span class="text-[12px] font-bold text-white bg-gray-800 px-2 py-0.5 rounded-md shadow-sm">អស់ស្តុក</span>' : ''}
+                                ${isNew ? '<span class="text-[12px] font-bold text-white bg-red-500 px-2 py-0.5 rounded-md shadow-sm">ទំនិញថ្មី 新货</span>' : ''}
+                                ${hasPriceUpdate ? '<span class="text-[12px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-md shadow-sm">តម្លៃថ្មី 新价</span>' : ''}
+                                ${!item.inStock ? '<span class="text-[12px] font-bold text-white bg-gray-800 px-2 py-0.5 rounded-md shadow-sm">អស់ស្តុក 没货</span>' : ''}
                             </div>
                         </div>
                         <span class="text-[11px] text-gray-500 font-bold bg-gray-100 px-2 py-1 rounded-lg">${item.code}</span>
@@ -120,7 +120,7 @@
                     <div class="text-[13px] text-gray-500 mb-3">${item.variant}</div>
                     <div class="flex justify-between items-center border-t border-gray-100 pt-3">
                         <div class="flex items-center gap-1">
-                            <span class="text-gray-400 text-[11px]">លក់រាយ:</span>
+                            <span class="text-gray-400 text-[11px]">លក់រាយ 零售:</span>
                             <span class="text-orange-600 font-bold text-[16px]">${item.salePrice}</span>
                         </div>
                     </div>
