@@ -94,30 +94,25 @@
         </main>
         
     </div>
-    <!-- TELEGRAM CONTACT MODAL -->
-    <div id="contact-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-[110] flex items-center justify-center p-4">
-        <div class="bg-white/80 backdrop-blur-xl border border-white/30 rounded-3xl w-full max-w-sm p-5 shadow-2xl relative animate-zoom">
+​    <!-- TELEGRAM CONTACT MODAL -->
+      <div id="contact-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden z-[110] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-xs p-6 shadow-2xl relative animate-zoom flex flex-col items-center">
             <!-- Close Button -->
-            <button onclick="closeContactModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl w-8 h-8 rounded-full flex items-center justify-center bg-white/60 border border-white/30 transition-colors">
+            <button onclick="closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             
             <!-- Modal Header -->
-            <div class="text-center mb-5">
-                <h2 class="text-lg font-bold text-gray-900">ទំនាក់ទំនងមកយើងខ្ញុំ</h2>
+            <div class="text-center mb-6 w-full">
+                <h2 class="text-xl font-bold text-gray-900 mb-1">ទំនាក់ទំនងមកយើងខ្ញុំ</h2>
+                <p class="text-sm text-gray-500">គណនីផ្លូវការ (OFFICIAL ACCOUNT)</p>
             </div>
             
-            <!-- Telegram Accounts List -->
-            <div class="space-y-1">
-                <!-- Official Account -->
-                <div>
-                    <span class="text-[12px] font-bold text-gray-500 uppercase tracking-wider block mb-2">គណនីផ្លូវការ (Official Account)</span>
-                    <a href="https://t.me/dading_boss" target="_blank" class="w-full bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white py-3 px-4 rounded-2xl font-bold flex items-center justify-between shadow-md active:scale-95 transition-all text-sm">
-                        <span class="flex items-center gap-2">
-                            <i class="fa-brands fa-telegram text-xl"></i>
-                            DADING WAREHOUSE
-                </div>
-            </div>
+            <!-- Telegram Account Button -->
+            <a href="https://t.me/dading_boss" target="_blank" class="w-full bg-[#229ED9] hover:bg-[#1a85b5] text-white py-4 px-6 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all">
+                <i class="fa-brands fa-telegram text-2xl"></i>
+                <span class="text-base">DADING WAREHOUSE</span>
+            </a>
         </div>
     </div>
     <!-- TOAST -->
@@ -165,6 +160,7 @@
                         priceUpdate: row[7] || '0', // 0 or 1
                         newStock: row[8] || '0',
                         image: formatImageUrl(row[10] || ''),
+                        qrLink: row[11] || ''
                     };
                 });
                 renderCategories();
