@@ -105,14 +105,13 @@
             <!-- Modal Header -->
             <div class="text-center mb-5">
                 <h2 class="text-lg font-bold text-gray-900">ទំនាក់ទំនងមកយើងខ្ញុំ</h2>
-                <p class="text-xs text-gray-500 mt-1">សូមជ្រើសរើសគណនីតេឡេក្រាមខាងក្រោម</p>
             </div>
             
             <!-- Telegram Accounts List -->
             <div class="space-y-4">
                 <!-- Official Account -->
                 <div>
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">គណនីផ្លូវការ (Official Account)</span>
+                    <span class="text-[12px] font-bold text-gray-500 uppercase tracking-wider block mb-2">គណនីផ្លូវការ (Official Account)</span>
                     <a href="https://t.me/dading_boss" target="_blank" class="w-full bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white py-3 px-4 rounded-2xl font-bold flex items-center justify-between shadow-md active:scale-95 transition-all text-sm">
                         <span class="flex items-center gap-2">
                             <i class="fa-brands fa-telegram text-xl"></i>
@@ -121,36 +120,6 @@
                         <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-75"></i>
                     </a>
                 </div>
-                
-                <!-- Sales Agents -->
-                <div>
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-2">ទំនាក់ទំនងផ្នែកលក់ (Sales Team)</span>
-                    <div class="grid grid-cols-1 gap-2.5 max-h-60 overflow-y-auto pr-1">
-                        <!-- Agent 1 -->
-                        <a href="https://t.me/dading_zhu" target="_blank" class="w-full bg-white/50 hover:bg-white/80 border border-white/40 text-gray-800 py-2.5 px-3 rounded-xl font-semibold flex items-center gap-3 active:scale-95 transition-all text-xs">
-                            <div class="w-7 h-7 bg-red-100 text-red-600 rounded-lg flex items-center justify-center font-bold">១</div>
-                            <span class="flex-grow text-left">អ្នកលក់ ១</span>
-                            <i class="fa-brands fa-telegram text-lg text-blue-500"></i>
-                        </a>
-                        <!-- Agent 2 -->
-                        <a href="https://t.me/dading_02" target="_blank" class="w-full bg-white/50 hover:bg-white/80 border border-white/40 text-gray-800 py-2.5 px-3 rounded-xl font-semibold flex items-center gap-3 active:scale-95 transition-all text-xs">
-                            <div class="w-7 h-7 bg-red-100 text-red-600 rounded-lg flex items-center justify-center font-bold">២</div>
-                            <span class="flex-grow text-left">អ្នកលក់ ២</span>
-                            <i class="fa-brands fa-telegram text-lg text-blue-500"></i>
-                        </a>
-                        <!-- Agent 3 -->
-                        <a href="https://t.me/dading_03" target="_blank" class="w-full bg-white/50 hover:bg-white/80 border border-white/40 text-gray-800 py-2.5 px-3 rounded-xl font-semibold flex items-center gap-3 active:scale-95 transition-all text-xs">
-                            <div class="w-7 h-7 bg-red-100 text-red-600 rounded-lg flex items-center justify-center font-bold">៣</div>
-                            <span class="flex-grow text-left">អ្នកលក់ ៣</span>
-                            <i class="fa-brands fa-telegram text-lg text-blue-500"></i>
-                        </a>
-                        <!-- Agent 4 -->
-                        <a href="https://t.me/dading_04" target="_blank" class="w-full bg-white/50 hover:bg-white/80 border border-white/40 text-gray-800 py-2.5 px-3 rounded-xl font-semibold flex items-center gap-3 active:scale-95 transition-all text-xs">
-                            <div class="w-7 h-7 bg-red-100 text-red-600 rounded-lg flex items-center justify-center font-bold">៤</div>
-                            <span class="flex-grow text-left">អ្នកលក់ ៤</span>
-                            <i class="fa-brands fa-telegram text-lg text-blue-500"></i>
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
@@ -195,6 +164,7 @@
                         code: row[1] || '',
                         variant: row[2] || '',
                         salePrice: row[3] || '0',
+                        vipPrice: row[4] || '0',
                         category: row[5] || 'ផ្សេងៗ',
                         inStock: row[6] !== '0', 
                         priceUpdate: row[7] || '0', // 0 or 1
@@ -301,9 +271,9 @@
                                     
                                     <!-- Status Badges Overlay -->
                                     <div class="absolute top-1.5 left-1.5 flex flex-col gap-1 z-10">
-                                        ${isNew ? '<span class="text-[8px] md:text-[9px] font-extrabold text-white bg-red-600 px-1.5 py-0.5 rounded-lg shadow-sm">新货 NEW</span>' : ''}
-                                        ${isNewPrice ? '<span class="text-[8px] md:text-[9px] font-extrabold text-white bg-blue-600 px-1.5 py-0.5 rounded-lg shadow-sm">新价 PRICE</span>' : ''}
-                                        ${isOutOfStock ? '<span class="text-[8px] md:text-[9px] font-extrabold text-white bg-gray-600 px-1.5 py-0.5 rounded-lg shadow-sm">没货 OUT</span>' : ''}
+                                        ${isNew ? '<span class="text-[8px] md:text-[9px] font-extrabold text-white bg-red-600 px-1.5 py-0.5 rounded-lg shadow-sm">新货 អីវ៉ាន់ថ្មី</span>' : ''}
+                                        ${isNewPrice ? '<span class="text-[8px] md:text-[9px] font-extrabold text-white bg-blue-600 px-1.5 py-0.5 rounded-lg shadow-sm">新价 តម្លៃថ្មី</span>' : ''}
+                                        ${isOutOfStock ? '<span class="text-[8px] md:text-[9px] font-extrabold text-white bg-gray-600 px-1.5 py-0.5 rounded-lg shadow-sm">没货 អស់ស្តុក</span>' : ''}
                                     </div>
                                 </div>
                                 <!-- Product Info -->
@@ -322,6 +292,9 @@
                                     <div class="flex flex-col gap-0.5">
                                         <div class="text-[9px] sm:text-[10px] md:text-xs text-gray-500 font-medium">
                                             លក់រាយ 零售: <span class="text-red-600 font-bold text-[10px] sm:text-xs md:text-sm block sm:inline">${item.salePrice}</span>
+                                        </div>
+                                        <div class="text-[9px] sm:text-[10px] md:text-xs text-gray-500 font-medium">
+                                            VIP 价格: <span class="text-gray-900 font-bold text-[9px] sm:text-xs block sm:inline">${item.vipPrice}</span>
                                         </div>
                                     </div>
                                     
