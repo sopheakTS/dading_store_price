@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>តារាងតម្លៃបោះដុំនិងលក់រាយ 零售批发价 - DADING SHOP</title>
+    <title>មានលក់រាយនិងបោះដុំ សម្ភារៈជាង ម៉ូទ័រBESTIR​ និងសម្ភារៈបន្ទប់ទឹក - DADING SHOP</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -108,7 +108,7 @@
             </div>
             
             <!-- Telegram Accounts List -->
-            <div class="space-y-4">
+            <div class="space-y-1">
                 <!-- Official Account -->
                 <div>
                     <span class="text-[12px] font-bold text-gray-500 uppercase tracking-wider block mb-2">គណនីផ្លូវការ (Official Account)</span>
@@ -116,7 +116,6 @@
                         <span class="flex items-center gap-2">
                             <i class="fa-brands fa-telegram text-xl"></i>
                             DADING WAREHOUSE
-                </div>
                 </div>
             </div>
         </div>
@@ -166,7 +165,6 @@
                         priceUpdate: row[7] || '0', // 0 or 1
                         newStock: row[8] || '0',
                         image: formatImageUrl(row[10] || ''),
-                        qrLink: row[11] || ''
                     };
                 });
                 renderCategories();
@@ -287,10 +285,7 @@
                                 <div class="border-t border-gray-100 pt-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2 mt-auto text-center md:text-left">
                                     <div class="flex flex-col gap-0.5">
                                         <div class="text-[9px] sm:text-[10px] md:text-xs text-gray-500 font-medium">
-                                            លក់រាយ 零售: <span class="text-red-600 font-bold text-[10px] sm:text-xs md:text-sm block sm:inline">${item.salePrice}</span>
-                                        </div>
-                                        <div class="text-[9px] sm:text-[10px] md:text-xs text-gray-500 font-medium">
-                                            VIP 价格: <span class="text-gray-900 font-bold text-[9px] sm:text-xs block sm:inline">${item.vipPrice}</span>
+                                            តម្លៃ 零售: <span class="text-red-600 font-bold text-[10px] sm:text-xs md:text-sm block sm:inline">${item.salePrice}</span>
                                         </div>
                                     </div>
                                     
