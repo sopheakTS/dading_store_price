@@ -115,10 +115,7 @@
                     <a href="https://t.me/dading_boss" target="_blank" class="w-full bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white py-3 px-4 rounded-2xl font-bold flex items-center justify-between shadow-md active:scale-95 transition-all text-sm">
                         <span class="flex items-center gap-2">
                             <i class="fa-brands fa-telegram text-xl"></i>
-                            DADING Boss
-                        </span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-75"></i>
-                    </a>
+                            DADING WAREHOUSE
                 </div>
                 </div>
             </div>
@@ -164,7 +161,6 @@
                         code: row[1] || '',
                         variant: row[2] || '',
                         salePrice: row[3] || '0',
-                        vipPrice: row[4] || '0',
                         category: row[5] || 'ផ្សេងៗ',
                         inStock: row[6] !== '0', 
                         priceUpdate: row[7] || '0', // 0 or 1
@@ -310,17 +306,6 @@
                     </div>
                 `;
                 container.appendChild(sectionDiv);
-            });
-            // បង្កើត QR code បន្ទាប់ពី Render HTML រួច
-            items.forEach((item) => {
-                const index = allData.indexOf(item);
-                if (item.qrLink) {
-                    const qrContainer = document.getElementById(`qrcode-${index}`);
-                    if (qrContainer) {
-                        qrContainer.innerHTML = '';
-                        new QRCode(qrContainer, { text: item.qrLink, width: 38, height: 38 });
-                    }
-                }
             });
         }
         /* មុខងារគ្រប់គ្រង CONTACT MODAL */
