@@ -347,6 +347,13 @@
                 
                 products = parseJSONData(rawData);
                 buildHomeGrids();
+                
+                // ពិនិត្យមើល URL ពេលវេបសាយដើរដំបូង (បើមាន Link ចែករំលែកមកឲ្យចំ Category ណាមួយ)
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('category')) showCategory(params.get('category'), true);
+                else if (params.get('brand')) showBrand(params.get('brand'), true);
+                else if (params.get('page') === 'about') showAbout(true);
+                
             } catch (error) { 
                 console.error('Error fetching data:', error); 
                 alert("មានបញ្ហា: " + error.message);
@@ -389,32 +396,49 @@
             }).join('');
         }
 
-        function showHome() {
+        function showHome(skipHistory = false) {
             currentFilterType = 'all'; currentFilterValue = ''; searchInput.value = '';
             homeView.classList.remove('hidden'); productView.classList.add('hidden'); aboutView.classList.add('hidden');
             window.scrollTo({top: 0, behavior: 'smooth'});
+            // Update URL ទៅជាទំព័រដើមវិញ
+            if (!skipHistory) window.history.pushState({page: 'home'}, '', window.location.pathname);
         }
         
-        function showAbout() {
+        function showAbout(skipHistory = false) {
             homeView.classList.add('hidden'); productView.classList.add('hidden'); aboutView.classList.remove('hidden');
             window.scrollTo({top: 0, behavior: 'smooth'});
+            // Update URL ទៅជាទំព័រ About
+            if (!skipHistory) window.history.pushState({page: 'about'}, '', '?page=about');
         }
 
         function scrollToSection(id) {
             showHome(); setTimeout(() => document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
         }
 
-        function showCategory(catKmName) {
+        function showCategory(catKmName, skipHistory = false) {
             currentFilterType = 'category'; currentFilterValue = String(catKmName); searchInput.value = '';
             homeView.classList.add('hidden'); aboutView.classList.add('hidden'); productView.classList.remove('hidden');
             window.scrollTo({top: 0}); updateSidebarInfo(); filterData();
+            // Update URL បន្ថែមឈ្មោះ Category ពីក្រោយ
+            if (!skipHistory) window.history.pushState({type: 'category', val: catKmName}, '', '?category=' + encodeURIComponent(catKmName));
         }
 
-        function showBrand(brandName) {
+        function showBrand(brandName, skipHistory = false) {
             currentFilterType = 'brand'; currentFilterValue = String(brandName); searchInput.value = '';
             homeView.classList.add('hidden'); aboutView.classList.add('hidden'); productView.classList.remove('hidden');
             window.scrollTo({top: 0}); updateSidebarInfo(); filterData();
+            // Update URL បន្ថែមឈ្មោះ Brand ពីក្រោយ
+            if (!skipHistory) window.history.pushState({type: 'brand', val: brandName}, '', '?brand=' + encodeURIComponent(brandName));
         }
+
+        // ចាប់យកការចុចប៊ូតុង ថយក្រោយ (Back/Forward) របស់ Browser ដើម្បីដូរទំព័រទៅតាម URL វិញ
+        window.addEventListener('popstate', (event) => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('category')) showCategory(params.get('category'), true);
+            else if (params.get('brand')) showBrand(params.get('brand'), true);
+            else if (params.get('page') === 'about') showAbout(true);
+            else showHome(true);
+        });
 
         function updateSidebarInfo() {
             let title = '', subtitle = '', iconSrc = 'https://placehold.co/100?text=IMG';
