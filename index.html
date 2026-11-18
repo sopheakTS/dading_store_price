@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DADING STORE</title>
+    <title>DADING STORE - RETAIL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -158,7 +158,7 @@
                             <div class="space-y-4 text-sm text-slate-600">
                                 <p class="flex items-start gap-3">
                                     <strong id="aboutPhoneLabel" class="text-slate-800 w-24 shrink-0">លេខទូរស័ព្ទ:</strong> 
-                                    <a href="tel:096 6760998" class="hover:text-blue-600 transition">096 676 0998</a>
+                                    <a href="tel:0966760998" class="hover:text-blue-600 transition">096 676 0998</a>
                                 </p>
                                 <p class="flex items-start gap-3">
                                     <strong class="text-slate-800 w-24 shrink-0">Telegram:</strong> 
@@ -170,7 +170,7 @@
                                 </p>
                                 <p class="flex items-start gap-3 pt-2">
                                     <strong id="aboutAddressLabel" class="text-slate-800 w-24 shrink-0">អាសយដ្ឋាន:</strong> 
-                                    <span id="aboutAddressVal">[សង្កាត់ព្រៃស ខណ្ឌដង្កោរ រាជធានីភ្នំពេញ ]</span>
+                                    <span id="aboutAddressVal">[សង្កាត់ព្រៃស ខណ្ឌដង្កោរ រាជធានីភ្នំពេញ]</span>
                                 </p>
                             </div>
                         </div>
@@ -204,10 +204,14 @@
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbw-QihTeMYtZM0YqpS8MiEqa9Kqy5gZu1ijRX6zwOeHwVlYB0J3vCPfIw_PIXQNtXK3/exec'; 
         
-        // លែងប្រើ COL_VIP_PRICE ទៀតហើយ
+        // កំណត់ជួរឈរ (Columns) ពី Google Sheet
         const COL_NAME_KM = 0; const COL_NAME_ZH = 1; const COL_CODE = 2; const COL_VARIANT = 4;
-        const COL_SALE_PRICE = 5; const COL_BRAND = 8;
-        const COL_CATEGORY_KM = 9; const COL_CATEGORY_ZH = 10; const COL_PHOTO = 14;
+        const COL_SALE_PRICE = 5; const COL_VIP_PRICE = 6; const COL_BRAND = 8;
+        const COL_CATEGORY_KM = 9; const COL_CATEGORY_ZH = 10; 
+        const COL_STOCK = 11;          // ជួរ L 
+        const COL_PRICE_UPDATE = 12;   // ជួរ M
+        const COL_NEW_STOCK = 13;      // ជួរ N
+        const COL_PHOTO = 14;          // ជួរ O
 
         let products = [];
         let globalBrandOrder = [];
@@ -305,14 +309,18 @@
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
                 if (row.length >= 2 && row[COL_NAME_KM]) {
+                    const safeStr = (val) => (val !== null && val !== undefined && val !== '') ? String(val).trim() : '';
+                    
                     result.push({
-                        nameKm: String(row[COL_NAME_KM] || ''), nameZh: String(row[COL_NAME_ZH] || ''),
-                        code: String(row[COL_CODE] || ''), variant: String(row[COL_VARIANT] || ''),
-                        // ដកយកតែតម្លៃ Sale Price មួយគត់
-                        salePrice: String(row[COL_SALE_PRICE] || ''),
-                        brand: String(row[COL_BRAND] || 'Other'), categoryKm: String(row[COL_CATEGORY_KM] || 'Uncategorized'),
-                        categoryZh: String(row[COL_CATEGORY_ZH] || row[COL_CATEGORY_KM] || 'Uncategorized'),
-                        linkphoto: String(row[COL_PHOTO] || '')
+                        nameKm: safeStr(row[COL_NAME_KM]), nameZh: safeStr(row[COL_NAME_ZH]),
+                        code: safeStr(row[COL_CODE]), variant: safeStr(row[COL_VARIANT]),
+                        salePrice: safeStr(row[COL_SALE_PRICE]), vipPrice: safeStr(row[COL_VIP_PRICE]), // ទុកទាញទិន្នន័យ តែយើងមិនបង្ហាញ VIP ទេ
+                        brand: safeStr(row[COL_BRAND]) || 'Other', categoryKm: safeStr(row[COL_CATEGORY_KM]) || 'Uncategorized',
+                        categoryZh: safeStr(row[COL_CATEGORY_ZH]) || safeStr(row[COL_CATEGORY_KM]) || 'Uncategorized',
+                        stock: safeStr(row[COL_STOCK]),
+                        priceUpdate: safeStr(row[COL_PRICE_UPDATE]),
+                        newStock: safeStr(row[COL_NEW_STOCK]),
+                        linkphoto: safeStr(row[COL_PHOTO])
                     });
                 }
             }
@@ -322,18 +330,26 @@
         async function fetchGoogleSheetData() {
             try {
                 const response = await fetch(API_URL);
-                const rawData = await response.json();
+                const textData = await response.text();
                 
-                if (rawData && rawData.error) {
-                    alert("⚠️ បញ្ហាពីទិន្នន័យ (API): " + rawData.error);
+                let rawData;
+                try {
+                    rawData = JSON.parse(textData);
+                } catch (e) {
+                    console.error("មិនមែនជាទម្រង់ JSON ទេ:", textData);
                     return;
+                }
+                
+                if (rawData.error) {
+                     alert("បញ្ហាពី Google Script: " + rawData.error);
+                     return;
                 }
                 
                 products = parseJSONData(rawData);
                 buildHomeGrids();
             } catch (error) { 
-                console.error('Error fetching data:', error);
-                alert("⚠️ មិនអាចទាញយកទិន្នន័យបានទេ! សូមឆែកអ៊ីនធឺណិត ឬ API Link។\n" + error.message);
+                console.error('Error fetching data:', error); 
+                alert("មានបញ្ហា: " + error.message);
             }
         }
 
@@ -356,7 +372,7 @@
                 const safeB = String(b).trim();
                 const brandKey = safeB.toUpperCase();
                 const brandLogo = brandLogos[brandKey] || `https://placehold.co/200x100/ffffff/0c1439?text=${encodeURIComponent(safeB)}`;
-                return `<div onclick="showBrand(this.getAttribute('data-brand'))" data-brand="${safeB.replace(/"/g, '&quot;')}" class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col items-center justify-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all group h-32">
+                return `<div onclick="showBrand('${safeB.replace(/'/g, "\\'")}')" class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col items-center justify-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all group h-32">
                     <img src="${brandLogo}" class="h-16 w-full object-contain mb-2 mix-blend-multiply group-hover:scale-105 transition" onerror="this.src='https://placehold.co/200x100?text=${encodeURIComponent(safeB)}'">
                     <span class="font-bold text-xs text-slate-500 mt-1">${safeB}</span>
                 </div>`;
@@ -366,7 +382,7 @@
                 const c = catMap[catKey];
                 const img = c.img || 'https://placehold.co/200?text=Category';
                 const displayName = currentLang === 'km' ? c.kmName : c.zhName;
-                return `<div onclick="showCategory(this.getAttribute('data-cat'))" data-cat="${c.kmName.replace(/"/g, '&quot;')}" class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col items-center justify-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all group">
+                return `<div onclick="showCategory('${c.kmName.replace(/'/g, "\\'")}')" class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col items-center justify-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all group">
                     <img src="${img}" class="h-16 md:h-20 w-16 md:w-20 object-contain mb-3 mix-blend-multiply group-hover:scale-110 transition" onerror="this.src='https://placehold.co/200?text=IMG'">
                     <span class="font-extrabold text-sm text-slate-800 text-center line-clamp-1">${displayName}</span>
                 </div>`;
@@ -413,6 +429,14 @@
                 iconSrc = brandLogos[safeBrand] || `https://placehold.co/200x100/ffffff/0c1439?text=${encodeURIComponent(currentFilterValue)}`;
             } else if (currentFilterType === 'search') {
                 title = currentLang === 'km' ? 'លទ្ធផលស្វែងរក' : '搜索结果'; subtitle = searchInput.value;
+                
+                const q = searchInput.value.toLowerCase().trim();
+                const matchedProduct = products.find(p => p.nameZh.toLowerCase().includes(q) || p.nameKm.toLowerCase().includes(q) || p.code.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+                if (matchedProduct && matchedProduct.linkphoto) {
+                    iconSrc = matchedProduct.linkphoto;
+                } else {
+                    iconSrc = 'https://placehold.co/150x150/f1f5f9/94a3b8?text=Search';
+                }
             }
             document.getElementById('sidebarTitle').innerText = title;
             document.getElementById('sidebarSubtitle').innerText = subtitle;
@@ -481,28 +505,50 @@
             const displayVariant = translateVariant(p.variant) || (currentLang === 'km' ? 'ស្តង់ដារ' : '标准');
             const safeName = displayName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             const safeVariantRaw = (p.variant || '').replace(/'/g, "\\'");
-            const brandBadge = p.brand ? `<div class="w-8 h-8 rounded bg-blue-900 text-white flex items-center justify-center text-[9px] font-bold shadow">${p.brand.substring(0,4).toUpperCase()}</div>` : '';
+            const brandBadge = p.brand ? `<div class="w-8 h-8 rounded bg-blue-900 text-white flex items-center justify-center text-[9px] font-bold shadow shrink-0">${p.brand.substring(0,4).toUpperCase()}</div>` : '';
 
-            // Format price to display with .00 and $
-            let displayPrice = '-';
-            if (p.salePrice && !isNaN(parseFloat(p.salePrice))) {
-                displayPrice = parseFloat(p.salePrice).toFixed(2) + ' $';
-            } else if (p.salePrice) {
-                 displayPrice = p.salePrice + ' $'; // Fallback if it's not a standard number
+            function formatPrice(val) {
+                if (!val || String(val).trim() === '') return '';
+                const num = parseFloat(val);
+                return !isNaN(num) ? num.toFixed(2) + ' $' : val + ' $';
             }
 
-            return `<div class="bg-white rounded-2xl border border-slate-200 p-3 hover:shadow-xl hover:border-amber-300 transition-all flex flex-col justify-between cursor-pointer group" onclick="openModal('${imgSrc}', '${safeName}', '${p.code}', '${safeVariantRaw}')">
+            const formattedSale = formatPrice(p.salePrice);
+
+            const isOutOfStock = p.stock === '0';
+            const isPriceUpdate = p.priceUpdate === '1';
+            const isNewStock = p.newStock === '1';
+
+            const cardClass = isOutOfStock ? 'grayscale opacity-60' : 'hover:shadow-xl hover:border-amber-300';
+            const imageHoverClass = isOutOfStock ? '' : 'group-hover:scale-110';
+            const textHoverClass = isOutOfStock ? '' : 'group-hover:text-blue-700';
+
+            let labelsHtml = '<div class="absolute top-2 left-2 flex flex-col gap-1.5 z-10 items-start">';
+            if (isNewStock) {
+                labelsHtml += `<span class="bg-red-600 text-white px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold shadow-sm tracking-wide">${currentLang === 'km' ? 'ទំនិញថ្មី' : '新货'}</span>`;
+            }
+            if (isPriceUpdate) {
+                labelsHtml += `<span class="bg-blue-600 text-white px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold shadow-sm tracking-wide">${currentLang === 'km' ? 'តម្លៃថ្មី' : '新价'}</span>`;
+            }
+            if (isOutOfStock) {
+                labelsHtml += `<span class="bg-slate-600 text-white px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold shadow-sm tracking-wide">${currentLang === 'km' ? 'អស់ស្តុក' : '没货'}</span>`;
+            }
+            labelsHtml += '</div>';
+
+            // បង្ហាញតែតម្លៃ "លក់រាយ" ប៉ុណ្ណោះ
+            return `<div class="bg-white rounded-2xl border border-slate-200 p-3 transition-all flex flex-col justify-between cursor-pointer group ${cardClass}" onclick="openModal('${imgSrc}', '${safeName}', '${p.code}', '${safeVariantRaw}')">
                 <div class="mb-3 bg-[#f8fafc] rounded-xl p-2 flex items-center justify-center h-32 md:h-44 relative overflow-hidden">
-                    <img src="${imgSrc}" class="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/300?text=No+Image'">
+                    ${labelsHtml}
+                    <img src="${imgSrc}" class="max-h-full max-w-full object-contain mix-blend-multiply transition duration-500 ${imageHoverClass}" onerror="this.src='https://placehold.co/300?text=No+Image'">
                 </div>
                 <div class="flex-1 flex flex-col">
-                    <h3 class="font-extrabold text-slate-800 text-xs md:text-sm mb-1 line-clamp-2 leading-snug group-hover:text-blue-700 transition">${displayName}</h3>
+                    <h3 class="font-extrabold text-slate-800 text-xs md:text-sm mb-1 line-clamp-2 leading-snug transition ${textHoverClass}">${displayName}</h3>
                     <div class="text-[10px] md:text-xs text-slate-500 font-medium mb-1 line-clamp-1">${displayVariant}</div>
                     <div class="text-[10px] text-slate-400 font-mono mb-2">${p.code}</div>
                 </div>
                 <div class="flex items-end justify-between mt-1 pt-2 border-t border-slate-100">
-                    <div class="flex flex-col">
-                        <span class="font-black text-red-600 text-sm md:text-base">${displayPrice}</span>
+                    <div class="flex flex-col w-full pr-2">
+                        ${formattedSale ? `<div class="flex justify-between items-center"><span class="text-slate-500 text-[11px] md:text-xs font-medium">${currentLang === 'km' ? 'តម្លៃ:' : '价格:'}</span><span class="font-black text-red-600 text-sm md:text-base">${formattedSale}</span></div>` : ''}
                     </div>
                     ${brandBadge}
                 </div>
@@ -527,8 +573,8 @@
                 const nextIdx = (idx + 1) % globalBrandOrder.length;
                 prevName = globalBrandOrder[prevIdx];
                 nextName = globalBrandOrder[nextIdx];
-                prevFunc = `showBrand(this.getAttribute('data-action'))" data-action="${prevName.replace(/"/g, '&quot;')}`;
-                nextFunc = `showBrand(this.getAttribute('data-action'))" data-action="${nextName.replace(/"/g, '&quot;')}`;
+                prevFunc = `showBrand('${prevName.replace(/'/g, "\\'")}')`;
+                nextFunc = `showBrand('${nextName.replace(/'/g, "\\'")}')`;
             } else if (currentFilterType === 'category') {
                 const idx = globalCatOrder.indexOf(currentFilterValue);
                 if (idx === -1) return;
@@ -541,8 +587,8 @@
                 prevName = currentLang === 'km' ? prevCat.categoryKm : prevCat.categoryZh;
                 nextName = currentLang === 'km' ? nextCat.categoryKm : nextCat.categoryZh;
                 
-                prevFunc = `showCategory(this.getAttribute('data-action'))" data-action="${globalCatOrder[prevIdx].replace(/"/g, '&quot;')}`;
-                nextFunc = `showCategory(this.getAttribute('data-action'))" data-action="${globalCatOrder[nextIdx].replace(/"/g, '&quot;')}`;
+                prevFunc = `showCategory('${globalCatOrder[prevIdx].replace(/'/g, "\\'")}')`;
+                nextFunc = `showCategory('${globalCatOrder[nextIdx].replace(/'/g, "\\'")}')`;
             }
 
             bottomNav.innerHTML = `
