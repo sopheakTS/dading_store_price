@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DADING STORE - RETAIL</title>
+    <title>DADING STORE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -206,7 +206,8 @@
         
         // កំណត់ជួរឈរ (Columns) ពី Google Sheet
         const COL_NAME_KM = 0; const COL_NAME_ZH = 1; const COL_CODE = 2; const COL_VARIANT = 4;
-        const COL_SALE_PRICE = 5; const COL_VIP_PRICE = 6; const COL_BRAND = 8;
+        const COL_SALE_PRICE = 5;      // ជួរ F (តម្លៃលក់)
+        const COL_BRAND = 8;           // ជួរ I
         const COL_CATEGORY_KM = 9; const COL_CATEGORY_ZH = 10; 
         const COL_STOCK = 11;          // ជួរ L 
         const COL_PRICE_UPDATE = 12;   // ជួរ M
@@ -314,7 +315,7 @@
                     result.push({
                         nameKm: safeStr(row[COL_NAME_KM]), nameZh: safeStr(row[COL_NAME_ZH]),
                         code: safeStr(row[COL_CODE]), variant: safeStr(row[COL_VARIANT]),
-                        salePrice: safeStr(row[COL_SALE_PRICE]), vipPrice: safeStr(row[COL_VIP_PRICE]), // ទុកទាញទិន្នន័យ តែយើងមិនបង្ហាញ VIP ទេ
+                        salePrice: safeStr(row[COL_SALE_PRICE]),
                         brand: safeStr(row[COL_BRAND]) || 'Other', categoryKm: safeStr(row[COL_CATEGORY_KM]) || 'Uncategorized',
                         categoryZh: safeStr(row[COL_CATEGORY_ZH]) || safeStr(row[COL_CATEGORY_KM]) || 'Uncategorized',
                         stock: safeStr(row[COL_STOCK]),
@@ -348,15 +349,23 @@
                 products = parseJSONData(rawData);
                 buildHomeGrids();
                 
-                // ពិនិត្យមើល URL ពេលវេបសាយដើរដំបូង (បើមាន Link ចែករំលែកមកឲ្យចំ Category ណាមួយ)
                 const params = new URLSearchParams(window.location.search);
-                if (params.get('category')) showCategory(params.get('category'), true);
+                if (params.get('q')) {
+                    searchInput.value = params.get('q');
+                    currentFilterType = 'search';
+                    homeView.classList.add('hidden'); aboutView.classList.add('hidden'); productView.classList.remove('hidden');
+                    updateSidebarInfo();
+                    filterData(true);
+                }
+                else if (params.get('new')) showNewArrivals(true);
+                else if (params.get('all')) showAllProducts(true);
+                else if (params.get('category')) showCategory(params.get('category'), true);
                 else if (params.get('brand')) showBrand(params.get('brand'), true);
                 else if (params.get('page') === 'about') showAbout(true);
                 
             } catch (error) { 
-                console.error('Error fetching data:', error); 
-                alert("មានបញ្ហា: " + error.message);
+                console.error('Error fetching data:', error);
+                alert("⚠️ មិនអាចទាញយកទិន្នន័យបានទេ! សូមឆែកអ៊ីនធឺណិត ឬ API Link។\n" + error.message);
             }
         }
 
@@ -385,7 +394,23 @@
                 </div>`;
             }).join('');
 
-            document.getElementById('homeCategoriesGrid').innerHTML = catOrder.map(catKey => {
+            const newArrivalsCard = `<div onclick="showNewArrivals()" class="bg-gradient-to-br from-red-50 to-white rounded-2xl border-2 border-red-200 p-4 flex flex-col items-center justify-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all group">
+                <div class="h-16 md:h-20 w-16 md:w-20 rounded-2xl bg-red-600 text-white flex flex-col items-center justify-center mb-3 shadow-md group-hover:scale-110 transition">
+                    <svg class="w-8 h-8 md:w-9 md:h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                    <span class="text-[9px] font-black tracking-wider mt-0.5">NEW</span>
+                </div>
+                <span class="font-extrabold text-sm text-red-600 text-center line-clamp-1">${currentLang === 'km' ? 'ទំនិញថ្មី' : '新货'}</span>
+            </div>`;
+
+            const allProductsCard = `<div onclick="showAllProducts()" class="bg-gradient-to-br from-blue-50 to-white rounded-2xl border-2 border-blue-200 p-4 flex flex-col items-center justify-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all group">
+                <div class="h-16 md:h-20 w-16 md:w-20 rounded-2xl bg-[#0c1439] text-white flex flex-col items-center justify-center mb-3 shadow-md group-hover:scale-110 transition">
+                    <svg class="w-8 h-8 md:w-9 md:h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    <span class="text-[9px] font-black tracking-wider mt-0.5">ALL</span>
+                </div>
+                <span class="font-extrabold text-sm text-[#0c1439] text-center line-clamp-1">${currentLang === 'km' ? 'ទំនិញទាំងអស់' : '全部商品'}</span>
+            </div>`;
+
+            const categoryCards = catOrder.map(catKey => {
                 const c = catMap[catKey];
                 const img = c.img || 'https://placehold.co/200?text=Category';
                 const displayName = currentLang === 'km' ? c.kmName : c.zhName;
@@ -394,47 +419,79 @@
                     <span class="font-extrabold text-sm text-slate-800 text-center line-clamp-1">${displayName}</span>
                 </div>`;
             }).join('');
+
+            document.getElementById('homeCategoriesGrid').innerHTML = newArrivalsCard + allProductsCard + categoryCards;
         }
 
         function showHome(skipHistory = false) {
             currentFilterType = 'all'; currentFilterValue = ''; searchInput.value = '';
             homeView.classList.remove('hidden'); productView.classList.add('hidden'); aboutView.classList.add('hidden');
             window.scrollTo({top: 0, behavior: 'smooth'});
-            // Update URL ទៅជាទំព័រដើមវិញ
-            if (!skipHistory) window.history.pushState({page: 'home'}, '', window.location.pathname);
+            if (!skipHistory) {
+                try { window.history.pushState({page: 'home'}, '', window.location.pathname); } catch (e) {}
+            }
         }
         
         function showAbout(skipHistory = false) {
             homeView.classList.add('hidden'); productView.classList.add('hidden'); aboutView.classList.remove('hidden');
             window.scrollTo({top: 0, behavior: 'smooth'});
-            // Update URL ទៅជាទំព័រ About
-            if (!skipHistory) window.history.pushState({page: 'about'}, '', '?page=about');
+            if (!skipHistory) {
+                try { window.history.pushState({page: 'about'}, '', '?page=about'); } catch (e) {}
+            }
         }
 
         function scrollToSection(id) {
             showHome(); setTimeout(() => document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
         }
 
+        function showNewArrivals(skipHistory = false) {
+            currentFilterType = 'new_arrivals'; currentFilterValue = ''; searchInput.value = '';
+            homeView.classList.add('hidden'); aboutView.classList.add('hidden'); productView.classList.remove('hidden');
+            window.scrollTo({top: 0}); updateSidebarInfo(); filterData(skipHistory);
+            if (!skipHistory) {
+                try { window.history.pushState({type: 'new'}, '', '?new=1'); } catch (e) {}
+            }
+        }
+
+        function showAllProducts(skipHistory = false) {
+            currentFilterType = 'all_products'; currentFilterValue = ''; searchInput.value = '';
+            homeView.classList.add('hidden'); aboutView.classList.add('hidden'); productView.classList.remove('hidden');
+            window.scrollTo({top: 0}); updateSidebarInfo(); filterData(skipHistory);
+            if (!skipHistory) {
+                try { window.history.pushState({type: 'all_products'}, '', '?all=1'); } catch (e) {}
+            }
+        }
+
         function showCategory(catKmName, skipHistory = false) {
             currentFilterType = 'category'; currentFilterValue = String(catKmName); searchInput.value = '';
             homeView.classList.add('hidden'); aboutView.classList.add('hidden'); productView.classList.remove('hidden');
-            window.scrollTo({top: 0}); updateSidebarInfo(); filterData();
-            // Update URL បន្ថែមឈ្មោះ Category ពីក្រោយ
-            if (!skipHistory) window.history.pushState({type: 'category', val: catKmName}, '', '?category=' + encodeURIComponent(catKmName));
+            window.scrollTo({top: 0}); updateSidebarInfo(); filterData(skipHistory);
+            if (!skipHistory) {
+                try { window.history.pushState({type: 'category', val: catKmName}, '', '?category=' + encodeURIComponent(catKmName)); } catch (e) {}
+            }
         }
 
         function showBrand(brandName, skipHistory = false) {
             currentFilterType = 'brand'; currentFilterValue = String(brandName); searchInput.value = '';
             homeView.classList.add('hidden'); aboutView.classList.add('hidden'); productView.classList.remove('hidden');
-            window.scrollTo({top: 0}); updateSidebarInfo(); filterData();
-            // Update URL បន្ថែមឈ្មោះ Brand ពីក្រោយ
-            if (!skipHistory) window.history.pushState({type: 'brand', val: brandName}, '', '?brand=' + encodeURIComponent(brandName));
+            window.scrollTo({top: 0}); updateSidebarInfo(); filterData(skipHistory);
+            if (!skipHistory) {
+                try { window.history.pushState({type: 'brand', val: brandName}, '', '?brand=' + encodeURIComponent(brandName)); } catch (e) {}
+            }
         }
 
-        // ចាប់យកការចុចប៊ូតុង ថយក្រោយ (Back/Forward) របស់ Browser ដើម្បីដូរទំព័រទៅតាម URL វិញ
         window.addEventListener('popstate', (event) => {
             const params = new URLSearchParams(window.location.search);
-            if (params.get('category')) showCategory(params.get('category'), true);
+            if (params.get('q')) {
+                searchInput.value = params.get('q');
+                currentFilterType = 'search';
+                homeView.classList.add('hidden'); aboutView.classList.add('hidden'); productView.classList.remove('hidden');
+                updateSidebarInfo();
+                filterData(true);
+            }
+            else if (params.get('new')) showNewArrivals(true);
+            else if (params.get('all')) showAllProducts(true);
+            else if (params.get('category')) showCategory(params.get('category'), true);
             else if (params.get('brand')) showBrand(params.get('brand'), true);
             else if (params.get('page') === 'about') showAbout(true);
             else showHome(true);
@@ -451,6 +508,14 @@
                 title = currentFilterValue; subtitle = currentLang === 'km' ? 'ម៉ាកយីហោ' : '品牌';
                 const safeBrand = String(currentFilterValue).trim().toUpperCase();
                 iconSrc = brandLogos[safeBrand] || `https://placehold.co/200x100/ffffff/0c1439?text=${encodeURIComponent(currentFilterValue)}`;
+            } else if (currentFilterType === 'new_arrivals') {
+                title = currentLang === 'km' ? 'ទំនិញថ្មី' : '新货';
+                subtitle = currentLang === 'km' ? 'ទំនិញចូលស្តុកថ្មី' : '最新到货';
+                iconSrc = 'https://placehold.co/150x150/fef2f2/dc2626?text=NEW';
+            } else if (currentFilterType === 'all_products') {
+                title = currentLang === 'km' ? 'ទំនិញទាំងអស់' : '全部商品';
+                subtitle = currentLang === 'km' ? 'បង្ហាញតាមលំដាប់តារាង' : '按列表顺序显示';
+                iconSrc = 'https://placehold.co/150x150/eff6ff/0c1439?text=ALL';
             } else if (currentFilterType === 'search') {
                 title = currentLang === 'km' ? 'លទ្ធផលស្វែងរក' : '搜索结果'; subtitle = searchInput.value;
                 
@@ -469,7 +534,7 @@
             document.getElementById('sidebarIcon').src = iconSrc;
         }
 
-        function filterData() {
+        function filterData(skipHistory = false) {
             const query = searchInput.value.toLowerCase().trim();
             let filtered = products;
 
@@ -480,9 +545,13 @@
 
             if (currentFilterType === 'category') filtered = filtered.filter(p => p.categoryKm === currentFilterValue);
             else if (currentFilterType === 'brand') filtered = filtered.filter(p => p.brand === currentFilterValue);
+            else if (currentFilterType === 'new_arrivals') filtered = filtered.filter(p => p.newStock === '1');
 
             if (query !== '') {
                 filtered = filtered.filter(p => p.nameZh.toLowerCase().includes(query) || p.nameKm.toLowerCase().includes(query) || p.code.toLowerCase().includes(query) || p.brand.toLowerCase().includes(query));
+                if (!skipHistory && currentFilterType === 'search') {
+                    try { window.history.replaceState({type: 'search', val: query}, '', '?q=' + encodeURIComponent(query)); } catch (e) {}
+                }
             }
 
             document.getElementById('productCountBadge').innerText = filtered.length;
@@ -559,7 +628,6 @@
             }
             labelsHtml += '</div>';
 
-            // បង្ហាញតែតម្លៃ "លក់រាយ" ប៉ុណ្ណោះ
             return `<div class="bg-white rounded-2xl border border-slate-200 p-3 transition-all flex flex-col justify-between cursor-pointer group ${cardClass}" onclick="openModal('${imgSrc}', '${safeName}', '${p.code}', '${safeVariantRaw}')">
                 <div class="mb-3 bg-[#f8fafc] rounded-xl p-2 flex items-center justify-center h-32 md:h-44 relative overflow-hidden">
                     ${labelsHtml}
@@ -570,9 +638,9 @@
                     <div class="text-[10px] md:text-xs text-slate-500 font-medium mb-1 line-clamp-1">${displayVariant}</div>
                     <div class="text-[10px] text-slate-400 font-mono mb-2">${p.code}</div>
                 </div>
-                <div class="flex items-end justify-between mt-1 pt-2 border-t border-slate-100">
-                    <div class="flex flex-col w-full pr-2">
-                        ${formattedSale ? `<div class="flex justify-between items-center"><span class="text-slate-500 text-[11px] md:text-xs font-medium">${currentLang === 'km' ? 'តម្លៃ:' : '价格:'}</span><span class="font-black text-red-600 text-sm md:text-base">${formattedSale}</span></div>` : ''}
+                <div class="flex items-center justify-between mt-1 pt-2 border-t border-slate-100">
+                    <div class="flex items-baseline gap-1.5 w-full pr-2">
+                        ${formattedSale ? `<span class="text-[10px] md:text-xs text-slate-500 font-medium">${currentLang === 'km' ? 'តម្លៃ:' : '价格:'}</span><span class="text-sm md:text-base font-black text-red-600">${formattedSale}</span>` : ''}
                     </div>
                     ${brandBadge}
                 </div>
@@ -581,7 +649,7 @@
         
         function renderBottomNav() {
             const bottomNav = document.getElementById('bottomNavContainer');
-            if (currentFilterType === 'search' || currentFilterType === 'all') {
+            if (currentFilterType === 'search' || currentFilterType === 'all' || currentFilterType === 'new_arrivals' || currentFilterType === 'all_products') {
                 bottomNav.classList.add('hidden');
                 return;
             }
