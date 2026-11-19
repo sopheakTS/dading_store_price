@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+​<!DOCTYPE html>
 <html lang="km">
 <head>
     <meta charset="UTF-8">
@@ -194,7 +194,7 @@
         <div class="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-3xl overflow-hidden p-4 shadow-2xl flex flex-col items-center" onclick="event.stopPropagation()">
             <button onclick="closeModal()" class="absolute top-4 right-4 bg-slate-100 hover:bg-slate-200 text-slate-800 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl transition z-10">✕</button>
             <div class="w-full overflow-y-auto max-h-[80vh] flex flex-col items-center">
-                <img id="modalImg" src="" class="max-h-[60vh] max-w-full object-contain mx-auto rounded-xl">
+                <img id="modalImg" src="" class="max-h-[58vh] max-w-full object-contain mx-auto rounded-xl">
                 <div id="modalTitle" class="text-center font-bold text-slate-900 text-base md:text-lg py-4 px-4 mt-2 border-t w-full"></div>
             </div>
         </div>
@@ -607,6 +607,7 @@
             }
 
             const formattedSale = formatPrice(p.salePrice);
+            const safePrice = formattedSale.replace(/'/g, "\\'");
 
             const isOutOfStock = p.stock === '0';
             const isPriceUpdate = p.priceUpdate === '1';
@@ -628,7 +629,7 @@
             }
             labelsHtml += '</div>';
 
-            return `<div class="bg-white rounded-2xl border border-slate-200 p-3 transition-all flex flex-col justify-between cursor-pointer group ${cardClass}" onclick="openModal('${imgSrc}', '${safeName}', '${p.code}', '${safeVariantRaw}')">
+            return `<div class="bg-white rounded-2xl border border-slate-200 p-3 transition-all flex flex-col justify-between cursor-pointer group ${cardClass}" onclick="openModal('${imgSrc}', '${safeName}', '${p.code}', '${safeVariantRaw}', '${safePrice}')">
                 <div class="mb-3 bg-[#f8fafc] rounded-xl p-2 flex items-center justify-center h-32 md:h-44 relative overflow-hidden">
                     ${labelsHtml}
                     <img src="${imgSrc}" class="max-h-full max-w-full object-contain mix-blend-multiply transition duration-500 ${imageHoverClass}" onerror="this.src='https://placehold.co/300?text=No+Image'">
@@ -702,10 +703,15 @@
             bottomNav.classList.remove('hidden');
         }
 
-        function openModal(imgSrc, name, code, rawVariant) {
+        function openModal(imgSrc, name, code, rawVariant, price) {
             const displayVariant = translateVariant(rawVariant);
+            const priceLabel = currentLang === 'km' ? 'តម្លៃ:' : '价格:';
             modalImg.src = imgSrc;
-            modalTitle.innerHTML = `<span class='text-amber-600 font-mono mr-2'>[${code}]</span> ${name} ${displayVariant ? `<span class='text-slate-500 text-sm block mt-1'>(${displayVariant})</span>` : ''}`;
+            modalTitle.innerHTML = `
+                <div><span class='text-amber-600 font-mono mr-2'>[${code}]</span> ${name}</div>
+                ${displayVariant ? `<span class='text-slate-500 text-sm block mt-1'>(${displayVariant})</span>` : ''}
+                ${price ? `<div class='mt-2.5 inline-flex items-baseline gap-2 bg-red-50 border border-red-200 px-4 py-1.5 rounded-full'><span class='text-xs md:text-sm text-slate-600 font-semibold'>${priceLabel}</span><span class='text-lg md:text-xl font-black text-red-600'>${price}</span></div>` : ''}
+            `;
             imageModal.classList.remove('hidden');
         }
 
